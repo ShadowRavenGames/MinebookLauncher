@@ -1,0 +1,26 @@
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>C:\Users\MuddyFudger\Documents\NetBeansProjects\MinebookLauncher\MinebookLauncher.jar</jar>
+  <outfile>C:\Users\MuddyFudger\Documents\NetBeansProjects\MinebookLauncher\MinebookLauncher.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir></chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <customProcName>false</customProcName>
+  <stayAlive>false</stayAlive>
+  <manifest></manifest>
+  <icon></icon>
+  <singleInstance>
+    <mutexName>mblauncher</mutexName>
+    <windowTitle>Minebook Launcher</windowTitle>
+  </singleInstance>
+  <jre>
+    <path>C:\Program Files (x86)\Java\jre6</path>
+    <minVersion></minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+  </jre>
+</launch4jConfig>
