@@ -11,7 +11,6 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -64,7 +63,6 @@ class downloadPack extends JDialog {
     
     private void setupGui(boolean b) throws Exception {
         setTitle("Downloading Pack!");
-        setModal(true);
         setSize(319, 65);
         setResizable(false);
         setUndecorated(true);
