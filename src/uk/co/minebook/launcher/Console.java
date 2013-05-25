@@ -15,11 +15,13 @@ import java.awt.Color;
 class Console extends Thread {
     
     public static void log(String msg) throws InterruptedException {
+        MinebookLauncher.frame.setVisible(true);
         MinebookLauncher.footer.setForeground(Color.WHITE);
         MinebookLauncher.footer.setText(msg);
     }
 
     public static void error(String msg) throws InterruptedException {
+        MinebookLauncher.frame.setVisible(true);
         MinebookLauncher.footer.setForeground(Color.PINK);
         MinebookLauncher.footer.setText(msg);
     }

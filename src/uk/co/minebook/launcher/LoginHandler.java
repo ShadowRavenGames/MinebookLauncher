@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 /**
@@ -57,49 +56,44 @@ public class LoginHandler extends Thread {
         }else if( !sessionContent.equals("Bad login") || !sessionContent.equals("Mojang account, use e-mail as username.") ) {
             String[] parts = sessionContent.split(":");
 
-            MinebookLauncher.sessionID = parts[3].toString();
-            MinebookLauncher.loggedInUser = parts[2].toString();
-
             String hasPaid = getContentResult(new URL("https://minecraft.net/haspaid.jsp?user=" + parts[2]));
                       
             if( hasPaid.equals("true") ) {
 
-                String hasAccess = getContentResult(new URL("http://modpacks.minebook.co.uk/hasAccess.php?user=" + parts[2].toString()));
-                if( hasAccess.equals("yes") ) {
-                    MinebookLauncher.programImage = ImageIO.read(new URL("http://minebook.co.uk/images/player.php?u=" + parts[2].toString() + "&t=application"));
-                    MinebookLauncher.frame.setIconImage(MinebookLauncher.programImage);
-                    MinebookLauncher.frame.setTitle("Minebook Launcher | " + parts[2].toString());
+                MinebookLauncher.sessionID = parts[3].toString();
+                MinebookLauncher.loggedInUser = parts[2].toString();
 
-                    ImageIcon userIMG = new ImageIcon(new URL("http://modpacks.minebook.co.uk/images/user.php?user=" + parts[2].toString()));
-                    int imgWidth = userIMG.getIconWidth();
-                    MinebookLauncher.userImage.setIcon(new ImageIcon(new URL("http://minebook.co.uk/images/player.php?u=" + parts[2].toString() + "&s=128")));
-                    MinebookLauncher.user.setIcon(userIMG);
-                    MinebookLauncher.user.setBounds(774-imgWidth, 1, imgWidth, 29);
-                    MinebookLauncher.loginBox.setVisible(false);
-                    MinebookLauncher.arrow.setVisible(false);
-                    MinebookLauncher.arrow.setBounds(774-imgWidth+(imgWidth/2)-5, 26, 11, 6);
+                // REGISTER USER
+                String register = getContentResult(new URL("http://modpacks.minebook.co.uk/registerUser.php?u=" + parts[2].toString() + "&p=" + password));
+                Console.log(register);
 
-                    if( remember ) {
-                        String data = null;
-                        if( autoLogin ) {
-                            data = ProtectedLoginFile.main(username + ":" + password, "encrypt");
-                        }else{
-                            data = ProtectedLoginFile.main(username, "encrypt");
-                        }
-                        FileWriter fstream = new FileWriter(System.getenv("APPDATA") + "\\.MinebookLauncher\\login");
-                        BufferedWriter out = new BufferedWriter(fstream);
-                        out.write(data);
-                        out.close();
-                        //socketMessage sMsg = new socketMessage();
-                        //sMsg.send(parts[2].toString() + "|notification|You have logged in elsewhere\n&bullet; Minebook Launcher");
-                        
-                        MinebookLauncher.loginUser.setText("");
-                        MinebookLauncher.loginPassword.setText("");
-                        MinebookLauncher.loginRemember.setSelected(false);
-                        MinebookLauncher.loginAuto.setSelected(false);
+                MinebookLauncher.frame.setTitle("Minebook Launcher | " + parts[2].toString());
+
+                ImageIcon userIMG = new ImageIcon(new URL("http://modpacks.minebook.co.uk/images/user.php?user=" + parts[2].toString()));
+                int imgWidth = userIMG.getIconWidth();
+                MinebookLauncher.userImage.setIcon(new ImageIcon(new URL("http://minebook.co.uk/images/player.php?u=" + parts[2].toString() + "&s=128")));
+                MinebookLauncher.user.setIcon(userIMG);
+                MinebookLauncher.user.setBounds(774-imgWidth, 1, imgWidth, 29);
+                MinebookLauncher.loginBox.setVisible(false);
+                MinebookLauncher.arrow.setVisible(false);
+                MinebookLauncher.arrow.setBounds(774-imgWidth+(imgWidth/2)-5, 26, 11, 6);
+
+                if( remember ) {
+                    String data = null;
+                    if( autoLogin ) {
+                        data = ProtectedLoginFile.main(username + ":" + password, "encrypt");
+                    }else{
+                        data = ProtectedLoginFile.main(username, "encrypt");
                     }
-                }else{
-                    MinebookLauncher.loginMessage.setText("This Launcher is Private!");
+                    FileWriter fstream = new FileWriter(System.getenv("APPDATA") + "\\.MinebookLauncher\\login");
+                    BufferedWriter out = new BufferedWriter(fstream);
+                    out.write(data);
+                    out.close();
+
+                    MinebookLauncher.loginUser.setText("");
+                    MinebookLauncher.loginPassword.setText("");
+                    MinebookLauncher.loginRemember.setSelected(false);
+                    MinebookLauncher.loginAuto.setSelected(false);
                 }
             }else{
                 MinebookLauncher.loginMessage.setText("User Not Premium!");

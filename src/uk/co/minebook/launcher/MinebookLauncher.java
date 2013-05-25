@@ -1,22 +1,19 @@
 package uk.co.minebook.launcher;
 
-import chrriis.dj.nativeswing.NativeSwing;
-import chrriis.dj.nativeswing.swtimpl.NativeInterface;
-import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.event.MouseMotionListener;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -50,7 +47,6 @@ public class MinebookLauncher extends JFrame {
     public static JPasswordField loginPassword = new JPasswordField();
     public static JToggleButton loginRemember = new JToggleButton("Remember Me");
     public static JToggleButton loginAuto = new JToggleButton("Auto Login");
-    public static JWebBrowser webBrowser = new JWebBrowser();
     
     public static downloadPack dlp;
     
@@ -70,32 +66,12 @@ public class MinebookLauncher extends JFrame {
     }
        
     public static void main(String[] args) throws Exception {
-        NativeSwing.initialize();
-        NativeInterface.open();
-
+        
         new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\").mkdir();
         new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\").mkdir();
         new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\accessCodes\\").mkdir();
         
-        URL serverConnection = new URL("http://modpacks.minebook.co.uk/connected.php");
-        HttpURLConnection connection = (HttpURLConnection) serverConnection.openConnection();
-        InputStream stream = connection.getInputStream();
-        Scanner scanner = new Scanner(stream); // You can read the stream however you want. Scanner was just an easy example
-        boolean found = false;
-        while(scanner.hasNext()) {
-            String next = scanner.next();
-            if("true".equals(next)) {
-                found = true;
-                break;
-            }
-        }
-
-        if(!found) {
-            JOptionPane.showMessageDialog(null, "Sorry the Minebook server is offline at the moment.\nPlease try again later.");
-            return;
-        }
-        
-        programImage = ImageIO.read(new URL("http://minebook.co.uk/images/icon.png"));
+        programImage = ImageIO.read(new URL("http://shadowravengames.co.uk/images/launcherIcon.png"));
         frame.setIconImage(programImage);
         frame.setTitle("Minebook Launcher");
         
@@ -117,12 +93,8 @@ public class MinebookLauncher extends JFrame {
                 String sessionContent = LoginHandler.getContentResult(new URL("https://login.minecraft.net/?user=" + user[0] + "&password=" + user[1] + "&version=13"));
                 String[] parts = sessionContent.split(":");
                 
-                programImage = ImageIO.read(new URL("http://minebook.co.uk/images/player.php?u=" + parts[2].toString() + "&t=application"));
                 frame.setIconImage(programImage);
                 frame.setTitle("Minebook Launcher | " + parts[2].toString());
-
-                //socketMessage sMsg = new socketMessage();
-                //sMsg.send(parts[2].toString() + "|notification|You have logged in elsewhere\n&bullet; Minebook Launcher");
                         
                 sessionID = parts[3].toString();
                 loggedInUser = parts[2].toString();
@@ -133,31 +105,19 @@ public class MinebookLauncher extends JFrame {
                 loginRemember.setSelected(true);
             }
         }
-        
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                webBrowser.setBounds(311, 30, 531, 430);
-//                webBrowser.setDefaultPopupMenuRegistered(false);
-                webBrowser.setBarsVisible(false);
-                webBrowser.setJavascriptEnabled(true);
-                browseTo("http://modpacks.minebook.co.uk/news.php");
-            }
-
-        });
 
         SpringLayout layout = new SpringLayout();
         
-        frame.setBackground(Color.BLACK);
-
-        JLabel background = new JLabel(new ImageIcon(new URL("http://modpacks.minebook.co.uk/images/frame.png")));
-        
-        frame.setContentPane(background);
-
         frame.setBounds(new Rectangle(width, height));
         frame.setUndecorated(true);
+        frame.setBackground(new Color(1.0f,1.0f,1.0f,0.0f));
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         centerWindow();
+
+        JLabel background = new JLabel(new ImageIcon(new URL("http://modpacks.minebook.co.uk/images/frame.png")));
+        background.setBackground(new Color(1.0f,1.0f,1.0f,0.0f));
+        
+        frame.setContentPane(background);
 
         logo.addMouseListener(new logoAction());
         logo.setIcon(new ImageIcon(new URL("http://modpacks.minebook.co.uk/images/logo.png")));
@@ -301,7 +261,6 @@ public class MinebookLauncher extends JFrame {
         frame.add(close);
         frame.add(footer);
         frame.add(header);
-        frame.add(webBrowser);
         
         
         JButton[] labels = getModPacks();
@@ -313,7 +272,7 @@ public class MinebookLauncher extends JFrame {
         panel.setPreferredSize(new Dimension(295, (labels.length*40)));
 
         panel.setBorder(null);
-        panel.setBackground(new Color(50, 50, 50));
+        panel.setBackground(new Color(0, 0, 0, 0f));
         panel.setVisible(true);
         JScrollPane scrollFrame = new JScrollPane(panel);
         panel.setAutoscrolls(true);
@@ -331,22 +290,30 @@ public class MinebookLauncher extends JFrame {
             labels[i].setSize(290, 50);
             labels[i].setFont(rosemary);
             labels[i].setVisible(true);
-            labels[i].addMouseListener(new ModPackListener(labels[i].getToolTipText()));
+            String[] pt = labels[i].getToolTipText().split("-~-");
+            labels[i].addMouseListener(new ModPackListener(pt[0], pt[1]));
             labels[i].setHorizontalAlignment(SwingConstants.LEFT);
             labels[i].setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
             labels[i].setBorderPainted(false);
             labels[i].setFocusPainted(false);
-            labels[i].setBackground(new Color(50, 50, 50));
+            labels[i].setRolloverEnabled(false);
+            labels[i].setContentAreaFilled(false);
+            labels[i].setFocusable(false);
+            labels[i].setRequestFocusEnabled(false);
+            labels[i].setBackground(new Color(0, 0, 0, 0f));
             labels[i].setForeground(new Color(255, 255, 255));
             panel.add(labels[i]);
         }
       
-        frame.setVisible(true);
-
-    }
-    
-    public static void browseTo(String str) {
-        webBrowser.navigate(str);
+        if( args.length == 1 ) {
+            frame.setVisible(true);
+            String mcver = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/packMcVer.php?packid=" + args[0]));
+            new quickLaunch(args[0], mcver);
+            System.out.println("Minebook QuickLaunch mode used! launching: " + args[0]);
+        }else{
+            frame.setVisible(true);
+        }
+       
     }
 
     public static JButton[] getModPacks() throws Exception {
@@ -384,9 +351,9 @@ public class MinebookLauncher extends JFrame {
                 Element modDescElement2 = (Element)modDescList.item(0);
                 NodeList modDescFNList = modDescElement2.getChildNodes();
                 
-                pack[s] = new JButton( ((Node)packNameFNList.item(0)).getNodeValue().trim() + " v" + ((Node)packVersionFNList.item(0)).getNodeValue().trim() + " (MC" + ((Node)minecraftVersionFNList.item(0)).getNodeValue().trim() + ")" );
+                pack[s] = new JButton( ((Node)packNameFNList.item(0)).getNodeValue().trim().replace("_", " ") + " v" + ((Node)packVersionFNList.item(0)).getNodeValue().trim() + " (MC" + ((Node)minecraftVersionFNList.item(0)).getNodeValue().trim() + ")" );
                 pack[s].setIcon(new ImageIcon(new URL("http://modpacks.minebook.co.uk/packs/" + ((Node)packNameFNList.item(0)).getNodeValue().trim() + "/icon.png")));
-                pack[s].setToolTipText( ((Node)packNameFNList.item(0)).getNodeValue().trim() );
+                pack[s].setToolTipText( ((Node)packNameFNList.item(0)).getNodeValue().trim() + "-~-" + ((Node)minecraftVersionFNList.item(0)).getNodeValue().trim() );
             }
         }
         return pack;
@@ -713,13 +680,8 @@ public class MinebookLauncher extends JFrame {
         @Override
         public void mouseClicked(MouseEvent e) {
             try {
-                try {
-                    programImage = ImageIO.read(new URL("http://minebook.co.uk/images/icon.png"));
-                    frame.setIconImage(programImage);
-                    frame.setTitle("Minebook Launcher");
-                } catch (IOException ex) {
-                    Logger.getLogger(MinebookLauncher.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                frame.setIconImage(programImage);
+                frame.setTitle("Minebook Launcher");
                 loggedInUser = "Login";
                 sessionID = null;
                 ImageIcon userIMG = new ImageIcon(new URL("http://modpacks.minebook.co.uk/images/user.php?user=" + loggedInUser + ""));
@@ -758,92 +720,115 @@ public class MinebookLauncher extends JFrame {
 
     private static class ModPackListener implements MouseListener {
 
-    String buttonText;
-    private MinebookLauncher MinebookLauncher;
-    
-    public ModPackListener(String text) {
-        buttonText = text;
-    }
+        String buttonText;
+        String mcver;
+        private MinebookLauncher MinebookLauncher;
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2) {
-            try {
-                if( !loggedInUser.equals("Login") ) {
-                    String sessionContent = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/isPackPrivate.php?id=" + buttonText));
-                    if( sessionContent.equals("yes") ) {
-                        File code = new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\accessCodes\\" + buttonText);
-                        if( code.exists() ) {
-                            StringBuffer fileData = new StringBuffer(1000);
-                            BufferedReader reader = new BufferedReader(new FileReader(System.getenv("APPDATA") + "\\.MinebookLauncher\\accessCodes\\" + buttonText));
-                            char[] buf = new char[1024];
-                            int numRead=0;
-                            while((numRead=reader.read(buf)) != -1){
-                                String readData = String.valueOf(buf, 0, numRead);
-                                fileData.append(readData);
-                                buf = new char[1024];
+        public ModPackListener(String text, String mc) {
+            buttonText = text;
+            mcver = mc;
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+                try {
+                    if( !loggedInUser.equals("Login") ) {
+                        String sessionContent = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/isPackPrivate.php?id=" + buttonText));
+                        if( sessionContent.equals("yes") ) {
+                            File code = new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\accessCodes\\" + buttonText);
+                            if( code.exists() ) {
+                                StringBuffer fileData = new StringBuffer(1000);
+                                BufferedReader reader = new BufferedReader(new FileReader(System.getenv("APPDATA") + "\\.MinebookLauncher\\accessCodes\\" + buttonText));
+                                char[] buf = new char[1024];
+                                int numRead=0;
+                                while((numRead=reader.read(buf)) != -1){
+                                    String readData = String.valueOf(buf, 0, numRead);
+                                    fileData.append(readData);
+                                    buf = new char[1024];
+                                }
+                                reader.close();
+                                String loginData = ProtectedLoginFile.main(fileData.toString(), "decrypt");
+                                String packCodeCorrect = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/isPackCodeCorrect.php?id=" + buttonText + "&code=" + loginData + "&user=" + loggedInUser));
+                                if( packCodeCorrect.equals("yes") ) {
+                                    File verExists = new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + buttonText + "\\version");
+                                    if( verExists.exists() ) {
+                                        BufferedReader br = new BufferedReader(new FileReader(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + buttonText + "\\version"));
+                                        String v = br.readLine();
+
+                                        String vn = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/getCurrentPackVersion.php?id=" + buttonText));
+                                        if( v.equals(vn) ) {
+                                            new launchModPack(buttonText);
+                                        }else{
+                                            new updateAvailable(MinebookLauncher.frame, buttonText, mcver, true);
+                                        }
+                                    }else{
+                                        new downloadPack(buttonText, mcver, false);
+                                    }
+                                }else if( packCodeCorrect.equals("not-allowed") ) {
+                                    Console.log("You are not on the " + buttonText + " whitelist!");
+                                }
+                            }else{
+                                new enterCode(MinebookLauncher.frame, buttonText, mcver, true);
                             }
-                            reader.close();
-                            String loginData = ProtectedLoginFile.main(fileData.toString(), "decrypt");
-                            String packCodeCorrect = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/isPackCodeCorrect.php?id=" + buttonText + "&code=" + loginData));
-                            if( packCodeCorrect.equals("yes") ) {
+                        }else{
+                            File f = new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + buttonText);
+                            if(f.exists()) {
                                 BufferedReader br = new BufferedReader(new FileReader(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + buttonText + "\\version"));
                                 String v = br.readLine();
 
                                 String vn = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/getCurrentPackVersion.php?id=" + buttonText));
                                 if( v.equals(vn) ) {
-                                    //launchPackHere
                                     new launchModPack(buttonText);
                                 }else{
-                                    new updateAvailable(MinebookLauncher.frame, buttonText, true);
+                                    new updateAvailable(MinebookLauncher.frame, buttonText, mcver, true);
                                 }
+                            }else{
+                                new downloadPack(buttonText, mcver, false);
                             }
-                        }else{
-                            new enterCode(MinebookLauncher.frame, buttonText, true);
                         }
                     }else{
-                        File f = new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + buttonText);
-                        if(f.exists()) {
-                            BufferedReader br = new BufferedReader(new FileReader(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + buttonText + "\\version"));
-                            String v = br.readLine();
-
-                            String vn = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/getCurrentPackVersion.php?id=" + buttonText));
-                            if( v.equals(vn) ) {
-                                //launchPackHere
-                                new launchModPack(buttonText);
-                            }else{
-                                new updateAvailable(MinebookLauncher.frame, buttonText, true);
-                            }
-                        }else{
-                            //downloadPackHere
-                            new downloadPack(buttonText, false);
-                        }
+                        Console.log("You must be logged in to use any of the Modpacks, Click LOGIN at the top right of the window.");
                     }
-                }else{
-                    Console.log("You must be logged in to use any of the Modpacks, Click LOGIN at the top right of the window.");
+                } catch (Exception ex) {
+                    Logger.getLogger(MinebookLauncher.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            } catch (Exception ex) {
+            }
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+        }
+
+    }
+    
+    public static String readFile(File file) {
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(file));
+            return br.readLine();
+        } catch (Exception ex) {
+            Logger.getLogger(MinebookLauncher.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                br.close();
+            } catch (IOException ex) {
                 Logger.getLogger(MinebookLauncher.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        return null;
     }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-    }
-    
-}
     
 }

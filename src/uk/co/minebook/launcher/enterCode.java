@@ -35,16 +35,17 @@ import javax.swing.SpringLayout;
 @SuppressWarnings("serial")
 public class enterCode extends JDialog {
     
-    String packID;
+    String packID, mcver;
     
     private JLabel passwordLbl;
     private JPasswordField password;
     private JButton login;
     public static JLabel close = new JLabel();
     
-    public enterCode(JFrame instance, String id, boolean modal) throws Exception {
+    public enterCode(JFrame instance, String id, String mcv, boolean modal) throws Exception {
         super(instance, id, modal);
         packID=id;
+        mcver = mcv;
         setupGui();
     }
     
@@ -107,7 +108,9 @@ public class enterCode extends JDialog {
             @Override
             public void mouseClicked(MouseEvent e) {
                 try {
-                    String sessionContent = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/isPackCodeCorrect.php?id=" + packID.toLowerCase() + "&code=" + new String(password.getPassword())));
+                    String sessionContent = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/isPackCodeCorrect.php?id=" + packID + "&code=" + new String(password.getPassword()) + "&user=" + MinebookLauncher.loggedInUser));
+                    System.out.println("Pack ID: " + packID );
+                    System.out.println("Pack Code: " + new String(password.getPassword()) );
                     if( sessionContent.equals("yes") ) {
                         
                         String data = ProtectedLoginFile.main(new String(password.getPassword()), "encrypt");
@@ -117,25 +120,25 @@ public class enterCode extends JDialog {
                         out.close();
                         
                         dispose();
-                        Console.log("Code for pack " + packID + " is Correct!");
+                        Console.log("Code for pack " + packID.replace("_", " ") + " is Correct!");
                         
                         File f = new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + packID + "\\version");
                         if(f.exists()) {
                             Scanner sc = new Scanner(new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + packID + "\\version"));
                             String v = sc.toString();
                             String vn = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/getCurrentPackVersion.php?id=" + packID));
-                            if( v.equals(vn) ) {
-                                //launchPackHere
+                            if( !v.equals(vn) ) {
                                 new launchModPack(packID);
                             }else{
-                                new updateAvailable(MinebookLauncher.frame, packID, true);
+                                new updateAvailable(MinebookLauncher.frame, packID, mcver, true);
                             }
                         }else{
-                            //downloadPackHere
-                            new downloadPack(packID, false);
+                            new downloadPack(packID, mcver, false);
                         }
+                    }else if( sessionContent.equals("not-allowed") ) {
+                        Console.log("You are not on the " + packID.replace("_", " ") + " whitelist!");
                     }else{
-                        Console.log("Code for pack " + packID + " is Incorrect!");
+                        Console.log("Code for pack " + packID.replace("_", " ") + " is Incorrect!");
                     }
                 } catch (Exception ex) {
                     Logger.getLogger(MinebookLauncher.class.getName()).log(Level.SEVERE, null, ex);

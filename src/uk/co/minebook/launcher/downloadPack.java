@@ -10,12 +10,20 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.swing.BorderFactory;
@@ -35,16 +43,17 @@ class downloadPack extends JDialog {
     
     public static double percentDled;
     
-    public static String packID;
+    public static String packID, mcVer;
     
     public static downloadPack frame;
     
     public static JLabel passwordLbl;
     public static JProgressBar progress;
 
-    public downloadPack(String id, boolean b) throws Exception {
+    public downloadPack(String id, String mcv, boolean b) throws Exception {
         super(MinebookLauncher.frame, id, true);
         packID=id;
+        mcVer = mcv;
         frame = this;
         setupGui(b);
     }
@@ -59,6 +68,8 @@ class downloadPack extends JDialog {
         setSize(319, 65);
         setResizable(false);
         setUndecorated(true);
+        
+        System.out.println(mcVer);
                      
         Container panel = getContentPane();
         
@@ -67,9 +78,9 @@ class downloadPack extends JDialog {
 
         if( b == true ) {
             deleteFolder(new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + packID));
-            passwordLbl = new JLabel("Updating " + packID);
+            passwordLbl = new JLabel("Updating " + packID.replace("_", " "));
         }else{
-            passwordLbl = new JLabel("Downloading " + packID);
+            passwordLbl = new JLabel("Downloading " + packID.replace("_", " "));
         }
         passwordLbl.setForeground(Color.WHITE);
         progress = new JProgressBar(0, 100);
@@ -125,7 +136,7 @@ class downloadPack extends JDialog {
 
         String version = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/getCurrentPackVersion.php?id=" + packID));
         String url = "http://modpacks.minebook.co.uk/packs/" + packID + "/" + version + ".zip";
-        new Thread(new downloadFiles(new URL(url), packID)).start();
+        new Thread(new downloadFiles(new URL(url), packID, mcVer)).start();
 
         setLocationRelativeTo(getOwner());
         setVisible(true);
@@ -148,11 +159,12 @@ class downloadPack extends JDialog {
 
 class downloadFiles implements Runnable {
     
-   String packID;
+   String packID, mcv;
    URL url;
     
-   public downloadFiles(URL u, String id) {
+   public downloadFiles(URL u, String id, String mcVer) {
        packID = id;
+       mcv = mcVer;
        url=u;
    }
     
@@ -180,6 +192,7 @@ class downloadFiles implements Runnable {
       while ((c = outputFile.read(data)) != -1) {
         total += c;
         downloadPack.progress.setValue((int)(total * 100L / fileSize));
+        Console.log("Downloading " + packID.replace("_", " ") + ": " + (int)(total * 100L / fileSize) + "%");
         out.write(data, 0, c);
       }
 
@@ -187,16 +200,17 @@ class downloadFiles implements Runnable {
       out.close();
 
       String fName = System.getenv("APPDATA") + "/.MinebookLauncher/packs/" + packID + "/" + version + ".zip";
-      extractFolder(fName, packID);
+      unzip(fName, packID);
     }
     catch (Exception e) {
       e.printStackTrace();
     }
   }
   
-  public void extractFolder(String zipFile, String id) throws Exception {
+  public void unzip(String zipFile, String id) throws Exception {
       
         downloadPack.passwordLbl.setText("Extracting Files");
+        Console.log("Extracting " + id.replace("_", " ") );
         downloadPack.progress.setValue(0);
       
         int BUFFER = 2048;
@@ -258,21 +272,104 @@ class downloadFiles implements Runnable {
 
         downloadPack.passwordLbl.setText("Finnished!");
 
-        File minecraft = new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + id + "\\minecraft\\bin\\minecraft.jar");
+        downloadMC();
+    }
+  
+    public void downloadMC() throws IOException {
+      try {
+          
+        String url = "http://assets.minecraft.net/" + mcv.replace(".", "_") + "/minecraft.jar";
+
+        File inputFile = new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + downloadPack.packID + "\\minecraft\\bin\\minecraft.jar");
+
+        downloadPack.passwordLbl.setText("Downloading Minecraft " + mcv);
+
+        URL copyurl = new URL(url);
+
+        HttpURLConnection conn = null;
+        conn = (HttpURLConnection)copyurl.openConnection();
+        conn.setRequestMethod("HEAD");
+        conn.getInputStream();
+        int fileSize = conn.getContentLength();
+
+        InputStream outputFile = copyurl.openStream();
+        FileOutputStream out = new FileOutputStream(inputFile);
+
+        byte[] data = new byte[512];
+        long total = 0L;
+        int c;
+        while ((c = outputFile.read(data)) != -1) {
+          total += c;
+          downloadPack.progress.setValue((int)(total * 100L / fileSize));
+          Console.log("Downloading Minecraft " + mcv + ": " + (int)(total * 100L / fileSize) + "%");
+          out.write(data, 0, c);
+        }
+
+        outputFile.close();
+        out.close();
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+      }
+        
+        File minecraft = new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + downloadPack.packID + "\\minecraft\\bin\\minecraft.jar");
         if (minecraft.exists()) {
-            String version = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/getCurrentPackVersion.php?id=" + id));
-            File versionFile = new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + id + "\\version");
+            String version = LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/getCurrentPackVersion.php?id=" + downloadPack.packID));
+            File versionFile = new File(System.getenv("APPDATA") + "\\.MinebookLauncher\\packs\\" + downloadPack.packID + "\\version");
             FileWriter fw = new FileWriter(versionFile);
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(version);
             bw.close();
             fw.close();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(downloadFiles.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            LoginHandler.getContentResult(new URL("http://modpacks.minebook.co.uk/addStat.php?type=download&pack=" + downloadPack.packID));
+            
+            killMetaInf();
+        }
+    }
+    
+    public static void killMetaInf() {
+        File inputFile = new File(System.getenv("APPDATA") + "/.MinebookLauncher/packs/" + downloadPack.packID + "/minecraft/bin", "minecraft.jar");
+        File outputTmpFile = new File(System.getenv("APPDATA") + "/.MinebookLauncher/packs/" + downloadPack.packID + "/minecraft/bin", "minecraft.jar.tmp");
+        try {
+            downloadPack.passwordLbl.setText("Removing META-INF");
+            Console.log("Removing META-INF");
+            JarInputStream input = new JarInputStream(new FileInputStream(inputFile));
+            JarOutputStream output = new JarOutputStream(new FileOutputStream(outputTmpFile));
+            JarEntry entry;
 
-            Thread.sleep(1000);
-            
+            while ((entry = input.getNextJarEntry()) != null) {
+                if (entry.getName().contains("META-INF")) {
+                        continue;
+                }
+                output.putNextEntry(entry);
+                byte buffer[] = new byte[1024];
+                int amo;
+                while ((amo = input.read(buffer, 0, 1024)) != -1) {
+                        output.write(buffer, 0, amo);
+                }
+                output.closeEntry();
+            }
+
+            input.close();
+            output.close();
+
+            if(!inputFile.delete()) {
+                System.err.println("Failed to delete Minecraft.jar.");
+                return;
+            }
+            outputTmpFile.renameTo(inputFile);
+
             downloadPack.frame.dispose();
-            
-            new launchModPack(id);
+
+            new launchModPack(downloadPack.packID);
+        } catch (Exception e) { 
+            System.err.println(e.getMessage());
         }
     }
 }

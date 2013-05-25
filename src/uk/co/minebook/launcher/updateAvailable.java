@@ -30,16 +30,17 @@ import javax.swing.SpringLayout;
 @SuppressWarnings("serial")
 public class updateAvailable extends JDialog {
     
-    String packID;
+    String packID, mcver;
     
     private JLabel passwordLbl;
     private JButton cancel;
     private JButton update;
     public static JLabel close = new JLabel();
     
-    public updateAvailable(JFrame instance, String id, boolean modal) throws Exception {
+    public updateAvailable(JFrame instance, String id, String mcv, boolean modal) throws Exception {
         super(instance, id, modal);
         packID=id;
+        mcver = mcv;
         setupGui();
     }
     
@@ -126,7 +127,7 @@ public class updateAvailable extends JDialog {
             public void mouseClicked(MouseEvent e) {
                 try {
                     dispose();
-                    new downloadPack(packID, true);
+                    new downloadPack(packID, mcver, true);
                 } catch (Exception ex) {
                     Logger.getLogger(updateAvailable.class.getName()).log(Level.SEVERE, null, ex);
                 }
