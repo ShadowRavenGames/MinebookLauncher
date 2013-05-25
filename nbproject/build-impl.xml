@@ -1025,7 +1025,6 @@ is divided into following sections:
         <!-- You can override this target in the ../build.xml file. -->
             <jar destfile="MinebookLauncher.jar">
                 <zipgroupfileset dir="dist" includes="*.jar"/>
-                <zipgroupfileset dir="dist/lib" includes="*.jar"/>
 		<manifest>
 			<attribute name="Main-Class" value="${main.class}"/>
 		</manifest>

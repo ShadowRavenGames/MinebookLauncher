@@ -12,15 +12,11 @@
   <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon></icon>
-  <singleInstance>
-    <mutexName>mblauncher</mutexName>
-    <windowTitle>Minebook Launcher</windowTitle>
-  </singleInstance>
+  <icon>\\MAIN-SERVER\www\shadowravengames.co.uk\public_html\images\favicon.ico</icon>
   <jre>
-    <path>C:\Program Files (x86)\Java\jre6</path>
+    <path>C:\Program Files\Java\jre7</path>
     <minVersion></minVersion>
     <maxVersion></maxVersion>
-    <jdkPreference>preferJre</jdkPreference>
+    <jdkPreference>jdkOnly</jdkPreference>
   </jre>
 </launch4jConfig>

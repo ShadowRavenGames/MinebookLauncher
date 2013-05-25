@@ -1,0 +1,55 @@
+2013-05-11 01:15:01 [INFO] Starting integrated minecraft server version 1.4.7
+2013-05-11 01:15:01 [INFO] Generating keypair
+2013-05-11 01:15:01 [INFO] Converting map!
+2013-05-11 01:15:02 [INFO] Preparing start region for level 0
+2013-05-11 01:15:03 [INFO] Preparing spawn area: 9%
+2013-05-11 01:15:04 [INFO] Preparing spawn area: 23%
+2013-05-11 01:15:05 [INFO] Preparing spawn area: 39%
+2013-05-11 01:15:06 [INFO] Preparing spawn area: 55%
+2013-05-11 01:15:07 [INFO] Preparing spawn area: 68%
+2013-05-11 01:15:08 [INFO] Preparing spawn area: 85%
+2013-05-11 01:15:10 [INFO] vinny8978[/127.0.0.1:0] logged in with entity id 199 at (-241.5, 64.62000000476837, 259.5)
+2013-05-11 01:50:21 [INFO] Starting integrated minecraft server version 1.4.7
+2013-05-11 01:50:21 [INFO] Generating keypair
+2013-05-11 01:50:21 [INFO] Converting map!
+2013-05-11 01:50:33 [INFO] Preparing start region for level 0
+2013-05-11 01:50:34 [INFO] Preparing spawn area: 5%
+2013-05-11 01:50:35 [INFO] Preparing spawn area: 12%
+2013-05-11 01:50:38 [SEVERE] Encountered an unexpected exception OutOfMemoryError
+java.lang.OutOfMemoryError: PermGen space
+	at a.<init>(CrashReport.java:27)
+	at a.a(CrashReport.java:319)
+	at im.c(ChunkProviderServer.java:135)
+	at net.minecraft.server.MinecraftServer.e(MinecraftServer.java:310)
+	at bdz.a(IntegratedServer.java:84)
+	at bdz.c(IntegratedServer.java:101)
+	at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:458)
+	at fy.run(SourceFile:849)
+2013-05-11 01:50:38 [INFO] Stopping server
+2013-05-11 01:50:38 [INFO] Saving players
+2013-05-11 01:50:38 [INFO] Saving worlds
+2013-05-11 01:50:38 [INFO] Saving chunks for level 'New World'/Overworld
+2013-05-20 18:00:39 [INFO] Starting integrated minecraft server version 1.4.7
+2013-05-20 18:00:39 [INFO] Generating keypair
+2013-05-20 18:00:39 [INFO] Converting map!
+2013-05-20 18:00:47 [INFO] Preparing start region for level 0
+2013-05-20 18:00:48 [INFO] Preparing spawn area: 5%
+2013-05-20 18:00:49 [INFO] Preparing spawn area: 13%
+2013-05-20 18:00:50 [INFO] Preparing spawn area: 23%
+2013-05-20 18:00:51 [INFO] Preparing spawn area: 34%
+2013-05-20 18:00:52 [INFO] Preparing spawn area: 49%
+2013-05-20 18:00:55 [INFO] Preparing spawn area: 61%
+2013-05-20 18:00:57 [INFO] Preparing spawn area: 82%
+2013-05-20 18:01:02 [INFO] Preparing spawn area: 94%
+2013-05-20 18:01:04 [INFO] MRVDOG[/127.0.0.1:0] logged in with entity id 403 at (169.5, 69.62000000476837, 256.5)
+2013-05-20 18:02:49 [INFO] Saving and pausing game...
+2013-05-20 18:02:49 [INFO] Saving chunks for level 'New World'/Overworld
+2013-05-20 18:02:49 [INFO] Saving chunks for level 'New World'/Nether
+2013-05-20 18:03:03 [INFO] Saving and pausing game...
+2013-05-20 18:03:03 [INFO] Saving chunks for level 'New World'/Overworld
+2013-05-20 18:03:03 [INFO] Saving chunks for level 'New World'/Nether
+2013-05-20 18:03:04 [INFO] Stopping server
+2013-05-20 18:03:04 [INFO] Saving players
+2013-05-20 18:03:04 [INFO] Saving worlds
+2013-05-20 18:03:04 [INFO] Saving chunks for level 'New World'/Overworld
+2013-05-20 18:03:04 [INFO] Saving chunks for level 'New World'/Nether
